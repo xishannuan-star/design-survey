@@ -430,7 +430,7 @@
     // Supabase 配置
     const SUPABASE_URL = 'https://aidpzpwfaoglagjxkpzz.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFpZHB6cHdmYW9nbGFnanhrcHp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzc0MTgyODIsImV4cCI6MjA1Mjk5NDI4Mn0.zLzemk2tv33pu0089YAALg_BfQ-UqGZTpLm7p7F-LBs';
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     // 从 URL 获取调查链接码
     const urlParams = new URLSearchParams(window.location.search);
@@ -445,7 +445,7 @@
 
       try {
         // 获取调查信息
-        const { data: survey, error: surveyError } = await supabase
+        const { data: survey, error: surveyError } = await supabaseClient
           .from('surveys')
           .select(`
             id,
@@ -500,7 +500,7 @@
 
       try {
         // 获取 survey_id
-        const { data: survey, error: surveyError } = await supabase
+        const { data: survey, error: surveyError } = await supabaseClient
           .from('surveys')
           .select('id')
           .eq('link_code', linkCode)
@@ -513,7 +513,7 @@
         data.survey_id = survey.id;
 
         // 提交数据
-        const { error: submitError } = await supabase
+        const { error: submitError } = await supabaseClient
           .from('submissions')
           .insert([data]);
 
