@@ -329,7 +329,7 @@
     // Supabase 配置
     const SUPABASE_URL = 'https://aidpzpwfaoglagjxkpzz.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFpZHB6cHdmYW9nbGFnanhrcHp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzc0MTgyODIsImV4cCI6MjA1Mjk5NDI4Mn0.zLzemk2tv33pu0089YAALg_BfQ-UqGZTpLm7p7F-LBs';
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let currentUser = null;
 
@@ -356,7 +356,7 @@
       document.getElementById('dashboard-page').style.display = 'block';
 
       // 获取设计师信息
-      const { data: designer } = await supabase
+      const { data: designer } = await supabaseClient
         .from('designers')
         .select('*')
         .eq('id', currentUser.id)
@@ -376,7 +376,7 @@
 
       try {
         // 直接查询 designers 表验证
-        const { data: designer, error } = await supabase
+        const { data: designer, error } = await supabaseClient
           .from('designers')
           .select('*')
           .eq('email', formData.get('email'))
@@ -416,7 +416,7 @@
         // 获取当前设计师ID（从 session 获取）
         const linkCode = generateLinkCode();
 
-        const { error } = await supabase
+        const { error } = await supabaseClient
           .from('surveys')
           .insert([{
             designer_id: currentUser.id,
@@ -448,7 +448,7 @@
 
     // 加载评价项目列表
     async function loadSurveys(designerId) {
-      const { data: surveys, error } = await supabase
+      const { data: surveys, error } = await supabaseClient
         .from('surveys')
         .select('*')
         .eq('designer_id', designerId)
