@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>设计师工作满意度评价</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+      color: #333;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 24px;
+      padding-bottom: 20px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+
+    .header h1 {
+      font-size: 22px;
+      color: #667eea;
+      margin-bottom: 12px;
+    }
+
+    .intro {
+      background: #f8f9ff;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 24px;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #666;
+    }
+
+    .project-info {
+      background: #fff7ed;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 24px;
+      border-left: 4px solid #f59e0b;
+    }
+
+    .project-info h3 {
+      font-size: 16px;
+      color: #ea580c;
+      margin-bottom: 8px;
+    }
+
+    .project-info p {
+      font-size: 14px;
+      line-height: 1.6;
+      color: #666;
+    }
+
+    .section {
+      margin-bottom: 32px;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: #1f2937;
+    }
+
+    .question {
+      margin-bottom: 24px;
+    }
+
+    .question-label {
+      display: block;
+      font-size: 15px;
+      margin-bottom: 12px;
+      color: #374151;
+      font-weight: 500;
+    }
+
+    .required {
+      color: #ef4444;
+      margin-left: 4px;
+    }
+
+    .rating {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .rating-item {
+      position: relative;
+    }
+
+    .rating-item input {
+      position: absolute;
+      opacity: 0;
+    }
+
+    .rating-item label {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 54px;
+      height: 54px;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 18px;
+      font-weight: 600;
+      color: #9ca3af;
+      background: white;
+    }
+
+    .rating-item input:checked + label {
+      border-color: #667eea;
+      background: #667eea;
+      color: white;
+      transform: scale(1.05);
+    }
+
+    .rating-item label:hover {
+      border-color: #a5b4fc;
+    }
+
+    .rating-desc {
+      font-size: 11px;
+      margin-top: 2px;
+      font-weight: 400;
+    }
+
+    textarea {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: inherit;
+      resize: vertical;
+      min-height: 80px;
+      transition: border-color 0.2s;
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      margin-top: 24px;
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
+    }
+
+    .submit-btn:disabled {
+      background: #d1d5db;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .success-message {
+      text-align: center;
+      padding: 48px 24px;
+    }
+
+    .success-icon {
+      font-size: 64px;
+      margin-bottom: 16px;
+    }
+
+    .success-text {
+      font-size: 18px;
+      color: #10b981;
+      font-weight: 600;
+    }
+
+    .error-message {
+      background: #fee;
+      color: #c33;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      display: none;
+    }
+
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 24px;
+    }
+
+    .spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #667eea;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="form-content">
+      <div class="header">
+        <h1>🎨 设计师工作满意度评价</h1>
+      </div>
+
+      <div class="intro">
+        <p><strong>尊敬的评价人：</strong></p>
+        <p style="margin-top: 8px;">为客观评估设计师的工作表现，优化团队协作效率，本次开展<strong>匿名工作满意度考评</strong>。所有数据仅用于内部复盘与改进，不做个人追责使用。请您结合真实工作体验，客观公正完成评价，感谢配合！</p>
+        <p style="margin-top: 8px; font-size: 13px; color: #999;">
+          <strong>填写须知：</strong>5分=非常优秀 / 4分=良好 / 3分=合格 / 2分=待改进 / 1分=不合格<br>
+          每人仅可填写1次，提交后不可修改，请认真作答。
+        </p>
+      </div>
+
+      <div class="project-info" id="project-info">
+        <h3>📋 本次评价项目</h3>
+        <p><strong>设计师：</strong><span id="designer-name">加载中...</span></p>
+        <p><strong>部门：</strong><span id="designer-dept">加载中...</span></p>
+        <p><strong>项目内容：</strong></p>
+        <p id="project-desc" style="margin-top: 4px;">加载中...</p>
+      </div>
+
+      <div class="error-message" id="error-message"></div>
+
+      <form id="survey-form">
+        <!-- 第一部分：通用专业素养 -->
+        <div class="section">
+          <div class="section-title">第一部分：专业素养评价</div>
+
+          <div class="question">
+            <label class="question-label">1. 工作责任心 <span class="required">*</span></label>
+            <p style="font-size: 13px; color: #6b7280; margin-bottom: 8px;">对待设计需求认真严谨，主动核对细节，无敷衍交付</p>
+            <div class="rating">
+              <div class="rating-item"><input type="radio" name="responsibility" value="1" id="r1_1" required><label for="r1_1">1<span class="rating-desc">不合格</span></label></div>
+              <div class="rating-item"><input type="radio" name="responsibility" value="2" id="r1_2"><label for="r1_2">2<span class="rating-desc">待改进</span></label></div>
+              <div class="rating-item"><input type="radio" name="responsibility" value="3" id="r1_3"><label for="r1_3">3<span class="rating-desc">合格</span></label></div>
+              <div class="rating-item"><input type="radio" name="responsibility" value="4" id="r1_4"><label for="r1_4">4<span class="rating-desc">良好</span></label></div>
+              <div class="rating-item"><input type="radio" name="responsibility" value="5" id="r1_5"><label for="r1_5">5<span class="rating-desc">优秀</span></label></div>
+            </div>
+          </div>
+
+          <div class="question">
+            <label class="question-label">2. 需求理解力 <span class="required">*</span></label>
+            <p style="font-size: 13px; color: #6b7280; margin-bottom: 8px;">快速精准理解业务需求，设计产出贴合目标</p>
+            <div class="rating">
+              <div class="rating-item"><input type="radio" name="understanding" value="1" id="r2_1" required><label for="r2_1">1</label></div>
+              <div class="rating-item"><input type="radio" name="understanding" value="2" id="r2_2"><label for="r2_2">2</label></div>
+              <div class="rating-item"><input type="radio" name="understanding" value="3" id="r2_3"><label for="r2_3">3</label></div>
+              <div class="rating-item"><input type="radio" name="understanding" value="4" id="r2_4"><label for="r2_4">4</label></div>
+              <div class="rating-item"><input type="radio" name="understanding" value="5" id="r2_5"><label for="r2_5">5</label></div>
+            </div>
+          </div>
+
+          <div class="question">
+            <label class="question-label">3. 视觉专业度 <span class="required">*</span></label>
+            <p style="font-size: 13px; color: #6b7280; margin-bottom: 8px;">配色、版式、层级规范，审美在线，符合设计规范</p>
+            <div class="rating">
+              <div class="rating-item"><input type="radio" name="visual" value="1" id="r3_1" required><label for="r3_1">1</label></div>
+              <div class="rating-item"><input type="radio" name="visual" value="2" id="r3_2"><label for="r3_2">2</label></div>
+              <div class="rating-item"><input type="radio" name="visual" value="3" id="r3_3"><label for="r3_3">3</label></div>
+              <div class="rating-item"><input type="radio" name="visual" value="4" id="r3_4"><label for="r3_4">4</label></div>
+              <div class="rating-item"><input type="radio" name="visual" value="5" id="r3_5"><label for="r3_5">5</label></div>
+            </div>
+          </div>
+
+          <div class="question">
+            <label class="question-label">4. 落地还原度 <span class="required">*</span></label>
+            <p style="font-size: 13px; color: #6b7280; margin-bottom: 8px;">设计标注、切图规范，配合前端高效还原效果</p>
+            <div class="rating">
+              <div class="rating-item"><input type="radio" name="implementation" value="1" id="r4_1" required><label for="r4_1">1</label></div>
+              <div class="rating-item"><input type="radio" name="implementation" value="2" id="r4_2"><label for="r4_2">2</label></div>
+              <div class="rating-item"><input type="radio" name="implementation" value="3" id="r4_3"><label for="r4_3">3</label></div>
+              <div class="rating-item"><input type="radio" name="implementation" value="4" id="r4_4"><label for="r4_4">4</label></div>
+              <div class="rating-item"><input type="radio" name="implementation" value="5" id="r4_5"><label for="r4_5">5</label></div>
+            </div>
+          </div>
+
+          <div class="question">
+            <label class="question-label">5. 协作与迭代能力 <span class="required">*</span></label>
+            <p style="font-size: 13px; color: #6b7280; margin-bottom: 8px;">沟通顺畅，高效配合修改迭代，积极配合项目节点</p>
+            <div class="rating">
+              <div class="rating-item"><input type="radio" name="collaboration" value="1" id="r5_1" required><label for="r5_1">1</label></div>
+              <div class="rating-item"><input type="radio" name="collaboration" value="2" id="r5_2"><label for="r5_2">2</label></div>
+              <div class="rating-item"><input type="radio" name="collaboration" value="3" id="r5_3"><label for="r5_3">3</label></div>
+              <div class="rating-item"><input type="radio" name="collaboration" value="4" id="r5_4"><label for="r5_4">4</label></div>
+              <div class="rating-item"><input type="radio" name="collaboration" value="5" id="r5_5"><label for="r5_5">5</label></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 第二部分：具体项目评价 -->
+        <div class="section">
+          <div class="section-title">第二部分：具体项目评价</div>
+
+          <div class="question">
+            <label class="question-label">6. 视觉呈现质量 <span class="required">*</span></label>
+            <p style="font-size: 13px; color: #6b7280; margin-bottom: 8px;">画面美观度、统一性、品牌适配性</p>
+            <div class="rating">
+              <div class="rating-item"><input type="radio" name="project_visual" value="1" id="r6_1" required><label for="r6_1">1</label></div>
+              <div class="rating-item"><input type="radio" name="project_visual" value="2" id="r6_2"><label for="r6_2">2</label></div>
+              <div class="rating-item"><input type="radio" name="project_visual" value="3" id="r6_3"><label for="r6_3">3</label></div>
+              <div class="rating-item"><input type="radio" name="project_visual" value="4" id="r6_4"><label for="r6_4">4</label></div>
+              <div class="rating-item"><input type="radio" name="project_visual" value="5" id="r6_5"><label for="r6_5">5</label></div>
+            </div>
+          </div>
+
+          <div class="question">
+            <label class="question-label">7. 需求匹配度 <span class="required">*</span></label>
+            <p style="font-size: 13px; color: #6b7280; margin-bottom: 8px;">设计方案贴合业务需求、用户体验及项目目标</p>
+            <div class="rating">
+              <div class="rating-item"><input type="radio" name="project_requirement" value="1" id="r7_1" required><label for="r7_1">1</label></div>
+              <div class="rating-item"><input type="radio" name="project_requirement" value="2" id="r7_2"><label for="r7_2">2</label></div>
+              <div class="rating-item"><input type="radio" name="project_requirement" value="3" id="r7_3"><label for="r7_3">3</label></div>
+              <div class="rating-item"><input type="radio" name="project_requirement" value="4" id="r7_4"><label for="r7_4">4</label></div>
+              <div class="rating-item"><input type="radio" name="project_requirement" value="5" id="r7_5"><label for="r7_5">5</label></div>
+            </div>
+          </div>
+
+          <div class="question">
+            <label class="question-label">8. 交付与落地效果 <span class="required">*</span></label>
+            <p style="font-size: 13px; color: #6b7280; margin-bottom: 8px;">交付文件规范、标注完整、可落地性强</p>
+            <div class="rating">
+              <div class="rating-item"><input type="radio" name="project_delivery" value="1" id="r8_1" required><label for="r8_1">1</label></div>
+              <div class="rating-item"><input type="radio" name="project_delivery" value="2" id="r8_2"><label for="r8_2">2</label></div>
+              <div class="rating-item"><input type="radio" name="project_delivery" value="3" id="r8_3"><label for="r8_3">3</label></div>
+              <div class="rating-item"><input type="radio" name="project_delivery" value="4" id="r8_4"><label for="r8_4">4</label></div>
+              <div class="rating-item"><input type="radio" name="project_delivery" value="5" id="r8_5"><label for="r8_5">5</label></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 第三部分：文字评价 -->
+        <div class="section">
+          <div class="section-title">第三部分：综合评价与建议</div>
+
+          <div class="question">
+            <label class="question-label">9. 最突出的优点和亮点是什么？（选填）</label>
+            <textarea name="strength" placeholder="请写下该设计师本次项目中表现最突出的优点..."></textarea>
+          </div>
+
+          <div class="question">
+            <label class="question-label">10. 存在哪些不足，需要优化改进的地方？（选填）</label>
+            <textarea name="improvement" placeholder="请写下您认为需要改进的方面..."></textarea>
+          </div>
+
+          <div class="question">
+            <label class="question-label">11. 对后续工作的优化建议？（选填）</label>
+            <textarea name="suggestion" placeholder="请写下您对后续工作的建议..."></textarea>
+          </div>
+        </div>
+
+        <!-- 第四部分：整体满意度 -->
+        <div class="section">
+          <div class="section-title">第四部分：整体满意度</div>
+
+          <div class="question">
+            <label class="question-label">12. 整体工作满意度 <span class="required">*</span></label>
+            <p style="font-size: 13px; color: #6b7280; margin-bottom: 8px;">综合所有维度，您对该设计师本次工作的整体评价</p>
+            <div class="rating">
+              <div class="rating-item"><input type="radio" name="overall" value="1" id="r9_1" required><label for="r9_1" style="width: 64px;">1<span class="rating-desc">非常不满意</span></label></div>
+              <div class="rating-item"><input type="radio" name="overall" value="2" id="r9_2"><label for="r9_2" style="width: 64px;">2<span class="rating-desc">不满意</span></label></div>
+              <div class="rating-item"><input type="radio" name="overall" value="3" id="r9_3"><label for="r9_3" style="width: 64px;">3<span class="rating-desc">基本满意</span></label></div>
+              <div class="rating-item"><input type="radio" name="overall" value="4" id="r9_4"><label for="r9_4" style="width: 64px;">4<span class="rating-desc">满意</span></label></div>
+              <div class="rating-item"><input type="radio" name="overall" value="5" id="r9_5"><label for="r9_5" style="width: 64px;">5<span class="rating-desc">非常满意</span></label></div>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="submit-btn">提交评价</button>
+      </form>
+    </div>
+
+    <div id="loading" class="loading">
+      <div class="spinner"></div>
+      <p style="margin-top: 16px; color: #667eea;">正在提交...</p>
+    </div>
+
+    <div id="success" style="display: none;">
+      <div class="success-message">
+        <div class="success-icon">✅</div>
+        <div class="success-text">评价提交成功</div>
+        <p style="margin-top: 12px; color: #6b7280; font-size: 14px;">感谢您的客观评价与真诚反馈！</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // Supabase 配置
+    const SUPABASE_URL = 'https://aidpzpwfaoglagjxkpzz.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFpZHB6cHdmYW9nbGFnanhrcHp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzc0MTgyODIsImV4cCI6MjA1Mjk5NDI4Mn0.zLzemk2tv33pu0089YAALg_BfQ-UqGZTpLm7p7F-LBs';
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // 从 URL 获取调查链接码
+    const urlParams = new URLSearchParams(window.location.search);
+    const linkCode = urlParams.get('code');
+
+    // 页面加载时获取项目信息
+    async function loadSurveyInfo() {
+      if (!linkCode) {
+        showError('无效的评价链接');
+        return;
+      }
+
+      try {
+        // 获取调查信息
+        const { data: survey, error: surveyError } = await supabase
+          .from('surveys')
+          .select(`
+            id,
+            project_name,
+            project_description,
+            designers (name, department)
+          `)
+          .eq('link_code', linkCode)
+          .eq('is_active', true)
+          .single();
+
+        if (surveyError || !survey) {
+          showError('评价链接不存在或已失效');
+          return;
+        }
+
+        // 填充项目信息
+        document.getElementById('designer-name').textContent = survey.designers.name;
+        document.getElementById('designer-dept').textContent = survey.designers.department || '未设置';
+        document.getElementById('project-desc').textContent = survey.project_description || '暂无项目描述';
+
+      } catch (error) {
+        console.error('加载失败:', error);
+        showError('加载评价信息失败，请稍后重试');
+      }
+    }
+
+    // 表单提交
+    document.getElementById('survey-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(e.target);
+      const data = {
+        survey_id: null, // 需要先获取 survey_id
+        responsibility_score: parseInt(formData.get('responsibility')),
+        requirement_understanding_score: parseInt(formData.get('understanding')),
+        visual_professionalism_score: parseInt(formData.get('visual')),
+        implementation_score: parseInt(formData.get('implementation')),
+        collaboration_score: parseInt(formData.get('collaboration')),
+        project_visual_score: parseInt(formData.get('project_visual')),
+        project_requirement_score: parseInt(formData.get('project_requirement')),
+        project_delivery_score: parseInt(formData.get('project_delivery')),
+        strength_feedback: formData.get('strength') || null,
+        improvement_feedback: formData.get('improvement') || null,
+        suggestion_feedback: formData.get('suggestion') || null,
+        overall_satisfaction: parseInt(formData.get('overall'))
+      };
+
+      // 显示加载状态
+      document.getElementById('form-content').style.display = 'none';
+      document.getElementById('loading').style.display = 'block';
+
+      try {
+        // 获取 survey_id
+        const { data: survey, error: surveyError } = await supabase
+          .from('surveys')
+          .select('id')
+          .eq('link_code', linkCode)
+          .single();
+
+        if (surveyError || !survey) {
+          throw new Error('无效的评价链接');
+        }
+
+        data.survey_id = survey.id;
+
+        // 提交数据
+        const { error: submitError } = await supabase
+          .from('submissions')
+          .insert([data]);
+
+        if (submitError) {
+          throw submitError;
+        }
+
+        // 显示成功页面
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('success').style.display = 'block';
+
+      } catch (error) {
+        console.error('提交失败:', error);
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('form-content').style.display = 'block';
+        showError('提交失败：' + error.message);
+      }
+    });
+
+    function showError(message) {
+      const errorEl = document.getElementById('error-message');
+      errorEl.textContent = message;
+      errorEl.style.display = 'block';
+    }
+
+    // 页面加载时执行
+    loadSurveyInfo();
+  </script>
+</body>
+</html>

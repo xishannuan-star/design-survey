@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>管理员后台</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+      background: #f5f5f7;
+      color: #333;
+    }
+
+    .header {
+      background: white;
+      border-bottom: 1px solid #e5e5e5;
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header h1 {
+      font-size: 20px;
+      color: #667eea;
+    }
+
+    .logout-btn {
+      padding: 8px 16px;
+      background: #f0f0f0;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    .stat-value {
+      font-size: 32px;
+      font-weight: 700;
+      color: #667eea;
+      margin-bottom: 4px;
+    }
+
+    .stat-label {
+      font-size: 14px;
+      color: #6b7280;
+    }
+
+    .action-bar {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 16px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .filter-group label {
+      font-size: 14px;
+      color: #374151;
+      white-space: nowrap;
+    }
+
+    .filter-group select,
+    .filter-group input {
+      padding: 8px 12px;
+      border: 2px solid #e5e7eb;
+      border-radius: 6px;
+      font-size: 14px;
+      min-width: 160px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: #667eea;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #5568d3;
+    }
+
+    .btn-success {
+      background: #10b981;
+      color: white;
+    }
+
+    .btn-success:hover {
+      background: #059669;
+    }
+
+    .data-table {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead {
+      background: #f9fafb;
+    }
+
+    th {
+      text-align: left;
+      padding: 16px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #6b7280;
+      border-bottom: 2px solid #e5e7eb;
+    }
+
+    td {
+      padding: 16px;
+      border-bottom: 1px solid #f3f4f6;
+      font-size: 14px;
+      color: #374151;
+    }
+
+    tbody tr:hover {
+      background: #f9fafb;
+    }
+
+    .score-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .score-high {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .score-medium {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .score-low {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .detail-btn {
+      padding: 6px 12px;
+      background: #f3f4f6;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      color: #374151;
+    }
+
+    .detail-btn:hover {
+      background: #e5e7eb;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 64px 24px;
+      color: #9ca3af;
+    }
+
+    .login-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .login-box {
+      background: white;
+      padding: 40px;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    }
+
+    .login-box h2 {
+      text-align: center;
+      color: #667eea;
+      margin-bottom: 32px;
+      font-size: 24px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: #374151;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    .error-msg {
+      background: #fee;
+      color: #c33;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      font-size: 14px;
+      display: none;
+    }
+
+    /* 详情弹窗 */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      overflow-y: auto;
+    }
+
+    .modal-content {
+      background: white;
+      max-width: 800px;
+      margin: 40px auto;
+      border-radius: 12px;
+      padding: 32px;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid #e5e7eb;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #9ca3af;
+    }
+
+    .detail-section {
+      margin-bottom: 24px;
+    }
+
+    .detail-section h4 {
+      font-size: 16px;
+      margin-bottom: 12px;
+      color: #1f2937;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    .detail-item {
+      background: #f9fafb;
+      padding: 12px;
+      border-radius: 8px;
+    }
+
+    .detail-item-label {
+      font-size: 13px;
+      color: #6b7280;
+      margin-bottom: 4px;
+    }
+
+    .detail-item-value {
+      font-size: 18px;
+      font-weight: 600;
+      color: #667eea;
+    }
+  </style>
+</head>
+<body>
+  <!-- 登录页面 -->
+  <div id="login-page" class="login-container">
+    <div class="login-box">
+      <h2>🔐 管理员登录</h2>
+      <div class="error-msg" id="login-error"></div>
+      <form id="login-form">
+        <div class="form-group">
+          <label>用户名</label>
+          <input type="text" name="username" placeholder="请输入管理员用户名" required>
+        </div>
+        <div class="form-group">
+          <label>密码</label>
+          <input type="password" name="password" placeholder="请输入密码" required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 8px;">登录</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 管理后台 -->
+  <div id="dashboard-page" style="display: none;">
+    <div class="header">
+      <h1>📊 管理员后台</h1>
+      <button class="logout-btn" onclick="logout()">退出登录</button>
+    </div>
+
+    <div class="container">
+      <!-- 统计卡片 -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value" id="total-surveys">0</div>
+          <div class="stat-label">评价项目总数</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="total-submissions">0</div>
+          <div class="stat-label">收到的评价数</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="avg-score">0</div>
+          <div class="stat-label">平均整体满意度</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="total-designers">0</div>
+          <div class="stat-label">设计师人数</div>
+        </div>
+      </div>
+
+      <!-- 操作栏 -->
+      <div class="action-bar">
+        <div class="filter-group">
+          <label>设计师：</label>
+          <select id="designer-filter">
+            <option value="">全部</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>时间范围：</label>
+          <input type="date" id="date-from">
+          <span>至</span>
+          <input type="date" id="date-to">
+        </div>
+        <button class="btn btn-primary" onclick="applyFilter()">筛选</button>
+        <button class="btn btn-success" onclick="exportData()">📥 导出 Excel</button>
+      </div>
+
+      <!-- 数据表格 -->
+      <div class="data-table">
+        <table>
+          <thead>
+            <tr>
+              <th>设计师</th>
+              <th>项目名称</th>
+              <th>提交时间</th>
+              <th>整体满意度</th>
+              <th>专业素养均分</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="data-table-body">
+            <tr>
+              <td colspan="6">
+                <div class="empty-state">加载中...</div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 详情弹窗 -->
+  <div id="detail-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>评价详情</h3>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <div id="modal-body"></div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script>
+    // Supabase 配置
+    const SUPABASE_URL = 'https://aidpzpwfaoglagjxkpzz.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFpZHB6cHdmYW9nbGFnanhrcHp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzc0MTgyODIsImV4cCI6MjA1Mjk5NDI4Mn0.zLzemk2tv33pu0089YAALg_BfQ-UqGZTpLm7p7F-LBs';
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let currentAdmin = null;
+    let allSubmissions = [];
+
+    // 检查登录状态
+    function checkAuth() {
+      const adminSession = localStorage.getItem('admin_session');
+      if (adminSession) {
+        currentAdmin = JSON.parse(adminSession);
+        showDashboard();
+      } else {
+        showLogin();
+      }
+    }
+
+    function showLogin() {
+      document.getElementById('login-page').style.display = 'flex';
+      document.getElementById('dashboard-page').style.display = 'none';
+    }
+
+    function showDashboard() {
+      document.getElementById('login-page').style.display = 'none';
+      document.getElementById('dashboard-page').style.display = 'block';
+      loadData();
+    }
+
+    // 登录
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+
+      try {
+        const { data: admin, error } = await supabase
+          .from('admins')
+          .select('*')
+          .eq('username', formData.get('username'))
+          .single();
+
+        if (error || !admin) {
+          throw new Error('用户名或密码错误');
+        }
+
+        // 简单验证（生产环境需要用 bcrypt）
+        if (formData.get('password') !== 'admin123') {
+          throw new Error('用户名或密码错误');
+        }
+
+        currentAdmin = admin;
+        localStorage.setItem('admin_session', JSON.stringify(admin));
+        showDashboard();
+      } catch (error) {
+        showError('login-error', error.message);
+      }
+    });
+
+    function logout() {
+      localStorage.removeItem('admin_session');
+      currentAdmin = null;
+      showLogin();
+    }
+
+    // 加载数据
+    async function loadData() {
+      try {
+        // 加载所有提交记录及关联的设计师和项目信息
+        const { data: submissions, error } = await supabase
+          .from('submissions')
+          .select(`
+            *,
+            surveys (
+              project_name,
+              project_description,
+              designers (name, department)
+            )
+          `)
+          .order('submitted_at', { ascending: false });
+
+        if (error) throw error;
+
+        allSubmissions = submissions || [];
+
+        // 更新统计数据
+        updateStats();
+
+        // 加载设计师筛选列表
+        loadDesignerFilter();
+
+        // 渲染表格
+        renderTable(allSubmissions);
+
+      } catch (error) {
+        console.error('加载数据失败:', error);
+      }
+    }
+
+    // 更新统计数据
+    async function updateStats() {
+      // 评价项目总数
+      const { count: surveyCount } = await supabase
+        .from('surveys')
+        .select('*', { count: 'exact', head: true });
+      document.getElementById('total-surveys').textContent = surveyCount || 0;
+
+      // 评价数
+      document.getElementById('total-submissions').textContent = allSubmissions.length;
+
+      // 平均满意度
+      if (allSubmissions.length > 0) {
+        const avgScore = (allSubmissions.reduce((sum, s) => sum + s.overall_satisfaction, 0) / allSubmissions.length).toFixed(1);
+        document.getElementById('avg-score').textContent = avgScore;
+      }
+
+      // 设计师人数
+      const { count: designerCount } = await supabase
+        .from('designers')
+        .select('*', { count: 'exact', head: true });
+      document.getElementById('total-designers').textContent = designerCount || 0;
+    }
+
+    // 加载设计师筛选列表
+    async function loadDesignerFilter() {
+      const { data: designers } = await supabase
+        .from('designers')
+        .select('id, name');
+
+      const filterEl = document.getElementById('designer-filter');
+      filterEl.innerHTML = '<option value="">全部</option>';
+
+      designers?.forEach(d => {
+        filterEl.innerHTML += `<option value="${d.id}">${d.name}</option>`;
+      });
+    }
+
+    // 应用筛选
+    function applyFilter() {
+      const designerFilter = document.getElementById('designer-filter').value;
+      const dateFrom = document.getElementById('date-from').value;
+      const dateTo = document.getElementById('date-to').value;
+
+      let filtered = [...allSubmissions];
+
+      // 设计师筛选
+      if (designerFilter) {
+        filtered = filtered.filter(s => s.surveys.designers.id === designerFilter);
+      }
+
+      // 时间筛选
+      if (dateFrom) {
+        filtered = filtered.filter(s => new Date(s.submitted_at) >= new Date(dateFrom));
+      }
+      if (dateTo) {
+        filtered = filtered.filter(s => new Date(s.submitted_at) <= new Date(dateTo + 'T23:59:59'));
+      }
+
+      renderTable(filtered);
+    }
+
+    // 渲染表格
+    function renderTable(data) {
+      const tbody = document.getElementById('data-table-body');
+
+      if (data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state">暂无数据</div></td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = data.map(item => {
+        const avgProfessional = ((
+          item.responsibility_score +
+          item.requirement_understanding_score +
+          item.visual_professionalism_score +
+          item.implementation_score +
+          item.collaboration_score
+        ) / 5).toFixed(1);
+
+        return `
+          <tr>
+            <td>${item.surveys.designers.name}</td>
+            <td>${item.surveys.project_name}</td>
+            <td>${new Date(item.submitted_at).toLocaleString('zh-CN')}</td>
+            <td><span class="score-badge ${getScoreClass(item.overall_satisfaction)}">${item.overall_satisfaction} 分</span></td>
+            <td>${avgProfessional} 分</td>
+            <td><button class="detail-btn" onclick='showDetail(${JSON.stringify(item)})'>查看详情</button></td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function getScoreClass(score) {
+      if (score >= 4) return 'score-high';
+      if (score >= 3) return 'score-medium';
+      return 'score-low';
+    }
+
+    // 显示详情
+    function showDetail(item) {
+      const modal = document.getElementById('detail-modal');
+      const body = document.getElementById('modal-body');
+
+      body.innerHTML = `
+        <div class="detail-section">
+          <h4>基本信息</h4>
+          <p><strong>设计师：</strong>${item.surveys.designers.name}</p>
+          <p><strong>项目：</strong>${item.surveys.project_name}</p>
+          <p><strong>提交时间：</strong>${new Date(item.submitted_at).toLocaleString('zh-CN')}</p>
+        </div>
+
+        <div class="detail-section">
+          <h4>专业素养评分</h4>
+          <div class="detail-grid">
+            <div class="detail-item">
+              <div class="detail-item-label">工作责任心</div>
+              <div class="detail-item-value">${item.responsibility_score} 分</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-item-label">需求理解力</div>
+              <div class="detail-item-value">${item.requirement_understanding_score} 分</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-item-label">视觉专业度</div>
+              <div class="detail-item-value">${item.visual_professionalism_score} 分</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-item-label">落地还原度</div>
+              <div class="detail-item-value">${item.implementation_score} 分</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-item-label">协作迭代能力</div>
+              <div class="detail-item-value">${item.collaboration_score} 分</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h4>项目评分</h4>
+          <div class="detail-grid">
+            <div class="detail-item">
+              <div class="detail-item-label">视觉呈现质量</div>
+              <div class="detail-item-value">${item.project_visual_score} 分</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-item-label">需求匹配度</div>
+              <div class="detail-item-value">${item.project_requirement_score} 分</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-item-label">交付落地效果</div>
+              <div class="detail-item-value">${item.project_delivery_score} 分</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h4>文字评价</h4>
+          <div style="background: #f9fafb; padding: 16px; border-radius: 8px; margin-bottom: 12px;">
+            <p style="font-weight: 600; margin-bottom: 4px;">优点亮点：</p>
+            <p style="color: #6b7280;">${item.strength_feedback || '无'}</p>
+          </div>
+          <div style="background: #f9fafb; padding: 16px; border-radius: 8px; margin-bottom: 12px;">
+            <p style="font-weight: 600; margin-bottom: 4px;">不足改进：</p>
+            <p style="color: #6b7280;">${item.improvement_feedback || '无'}</p>
+          </div>
+          <div style="background: #f9fafb; padding: 16px; border-radius: 8px;">
+            <p style="font-weight: 600; margin-bottom: 4px;">优化建议：</p>
+            <p style="color: #6b7280;">${item.suggestion_feedback || '无'}</p>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h4>整体满意度</h4>
+          <div style="text-align: center; padding: 20px; background: #f9fafb; border-radius: 8px;">
+            <span class="score-badge ${getScoreClass(item.overall_satisfaction)}" style="font-size: 24px; padding: 12px 24px;">
+              ${item.overall_satisfaction} 分
+            </span>
+          </div>
+        </div>
+      `;
+
+      modal.style.display = 'block';
+    }
+
+    function closeModal() {
+      document.getElementById('detail-modal').style.display = 'none';
+    }
+
+    // 导出 Excel
+    function exportData() {
+      if (allSubmissions.length === 0) {
+        alert('暂无数据可导出');
+        return;
+      }
+
+      const exportData = allSubmissions.map(item => ({
+        '设计师': item.surveys.designers.name,
+        '部门': item.surveys.designers.department,
+        '项目名称': item.surveys.project_name,
+        '工作责任心': item.responsibility_score,
+        '需求理解力': item.requirement_understanding_score,
+        '视觉专业度': item.visual_professionalism_score,
+        '落地还原度': item.implementation_score,
+        '协作迭代能力': item.collaboration_score,
+        '专业素养均分': ((item.responsibility_score + item.requirement_understanding_score + item.visual_professionalism_score + item.implementation_score + item.collaboration_score) / 5).toFixed(1),
+        '视觉呈现质量': item.project_visual_score,
+        '需求匹配度': item.project_requirement_score,
+        '交付落地效果': item.project_delivery_score,
+        '项目评分均分': ((item.project_visual_score + item.project_requirement_score + item.project_delivery_score) / 3).toFixed(1),
+        '整体满意度': item.overall_satisfaction,
+        '优点亮点': item.strength_feedback || '',
+        '不足改进': item.improvement_feedback || '',
+        '优化建议': item.suggestion_feedback || '',
+        '提交时间': new Date(item.submitted_at).toLocaleString('zh-CN')
+      }));
+
+      const ws = XLSX.utils.json_to_sheet(exportData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, '评价数据');
+
+      const fileName = `设计师满意度评价_${new Date().toLocaleDateString('zh-CN')}.xlsx`;
+      XLSX.writeFile(wb, fileName);
+    }
+
+    function showError(elementId, message) {
+      const el = document.getElementById(elementId);
+      el.textContent = message;
+      el.style.display = 'block';
+    }
+
+    // 页面加载时执行
+    checkAuth();
+
+    // 点击模态框外部关闭
+    window.onclick = function(event) {
+      const modal = document.getElementById('detail-modal');
+      if (event.target === modal) {
+        closeModal();
+      }
+    }
+  </script>
+</body>
+</html>
