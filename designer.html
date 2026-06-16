@@ -335,9 +335,9 @@
 
     // 检查登录状态
     async function checkAuth() {
-      const session = supabase.auth.getSession();
-      if (session?.user) {
-        currentUser = session.user;
+      const session = localStorage.getItem('designer_session');
+      if (session) {
+        currentUser = JSON.parse(session);
         showDashboard();
       } else {
         showLogin();
@@ -359,7 +359,7 @@
       const { data: designer } = await supabase
         .from('designers')
         .select('*')
-        .eq('email', currentUser.email)
+        .eq('id', currentUser.id)
         .single();
 
       if (designer) {
@@ -375,23 +375,29 @@
       const formData = new FormData(e.target);
 
       try {
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email: formData.get('email'),
-          password: formData.get('password')
-        });
+        // 直接查询 designers 表验证
+        const { data: designer, error } = await supabase
+          .from('designers')
+          .select('*')
+          .eq('email', formData.get('email'))
+          .eq('password_hash', formData.get('password'))
+          .single();
 
-        if (error) throw error;
+        if (error || !designer) {
+          throw new Error('邮箱或密码错误');
+        }
 
-        currentUser = data.user;
+        currentUser = { email: designer.email, id: designer.id };
+        localStorage.setItem('designer_session', JSON.stringify(currentUser));
         showDashboard();
       } catch (error) {
-        showError('login-error', '登录失败：' + error.message);
+        showError('login-error', error.message);
       }
     });
 
     // 退出登录
     async function logout() {
-      await supabase.auth.signOut();
+      localStorage.removeItem('designer_session');
       currentUser = null;
       showLogin();
     }
@@ -407,19 +413,13 @@
       const formData = new FormData(e.target);
 
       try {
-        // 获取当前设计师ID
-        const { data: designer } = await supabase
-          .from('designers')
-          .select('id')
-          .eq('email', currentUser.email)
-          .single();
-
+        // 获取当前设计师ID（从 session 获取）
         const linkCode = generateLinkCode();
 
         const { error } = await supabase
           .from('surveys')
           .insert([{
-            designer_id: designer.id,
+            designer_id: currentUser.id,
             project_name: formData.get('project_name'),
             project_description: formData.get('project_description'),
             link_code: linkCode
@@ -439,7 +439,7 @@
         }, 3000);
 
         // 刷新列表
-        loadSurveys(designer.id);
+        loadSurveys(currentUser.id);
 
       } catch (error) {
         alert('创建失败：' + error.message);
