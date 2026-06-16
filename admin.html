@@ -450,7 +450,7 @@
     // Supabase 配置
     const SUPABASE_URL = 'https://aidpzpwfaoglagjxkpzz.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFpZHB6cHdmYW9nbGFnanhrcHp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzc0MTgyODIsImV4cCI6MjA1Mjk5NDI4Mn0.zLzemk2tv33pu0089YAALg_BfQ-UqGZTpLm7p7F-LBs';
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let currentAdmin = null;
     let allSubmissions = [];
@@ -483,7 +483,7 @@
       const formData = new FormData(e.target);
 
       try {
-        const { data: admin, error } = await supabase
+        const { data: admin, error } = await supabaseClient
           .from('admins')
           .select('*')
           .eq('username', formData.get('username'))
@@ -516,7 +516,7 @@
     async function loadData() {
       try {
         // 加载所有提交记录及关联的设计师和项目信息
-        const { data: submissions, error } = await supabase
+        const { data: submissions, error } = await supabaseClient
           .from('submissions')
           .select(`
             *,
@@ -549,7 +549,7 @@
     // 更新统计数据
     async function updateStats() {
       // 评价项目总数
-      const { count: surveyCount } = await supabase
+      const { count: surveyCount } = await supabaseClient
         .from('surveys')
         .select('*', { count: 'exact', head: true });
       document.getElementById('total-surveys').textContent = surveyCount || 0;
@@ -564,7 +564,7 @@
       }
 
       // 设计师人数
-      const { count: designerCount } = await supabase
+      const { count: designerCount } = await supabaseClient
         .from('designers')
         .select('*', { count: 'exact', head: true });
       document.getElementById('total-designers').textContent = designerCount || 0;
@@ -572,7 +572,7 @@
 
     // 加载设计师筛选列表
     async function loadDesignerFilter() {
-      const { data: designers } = await supabase
+      const { data: designers } = await supabaseClient
         .from('designers')
         .select('id, name');
 
