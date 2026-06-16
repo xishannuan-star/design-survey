@@ -383,9 +383,12 @@
           .eq('password_hash', formData.get('password'))
           .single();
 
-        if (error || !designer) {
-          throw new Error('邮箱或密码错误');
-        }
+        if (error) {                                                                                                                             
+    throw new Error('数据库错误：' + error.message + ' (code: ' + error.code + ')');
+  }                                                                                                                                        
+  if (!designer) {
+    throw new Error('邮箱或密码不正确（未找到匹配账号）');                                                                                 
+  }         
 
         currentUser = { email: designer.email, id: designer.id };
         localStorage.setItem('designer_session', JSON.stringify(currentUser));
